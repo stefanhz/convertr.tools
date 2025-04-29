@@ -1,0 +1,221 @@
+# **App Name**: Converter Kit
+
+## Core Features:
+
+- HTML to Markdown Converter: Two text areas, one for HTML input and one for Markdown output, with a button to convert HTML to Markdown.
+- Markdown to HTML Converter: Two text areas, one for Markdown input and one for HTML output, with a button to convert Markdown to HTML.
+- Conversion Logic: Implement client-side logic to handle the conversion between HTML and Markdown, using a Javascript library.
+
+## Style Guidelines:
+
+- Accent color: Teal (#008080) to complement the existing indigo and provide a fresh, modern feel.
+- Use Shadcn's `Textarea` component for the input and output fields to ensure a consistent and accessible UI.
+- Add a subtle fade-in animation to the output text area after the conversion is complete.
+
+## Original User Request:
+I am building a web app that offers a large number of converter tools (e.g., html to markdown and vice versa, JSON formatter, XML formatter, meter to feet and vice versa, etc.)
+
+Below is the code for a layout. Please use this and don‘t change anything unless Shadcn has a better option (then use that). 
+
+Make it a Next.js project.
+
+As a first tool, please generate the html to markdown and markdown to html converter.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>convertr.tools - Fast Online Converters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple transition for hover effects */
+        .converter-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .converter-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Hide elements smoothly */
+        .hidden-smooth {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        /* Style for category headers */
+        .category-header {
+            margin-top: 2rem; /* Add space above category headers */
+            margin-bottom: 1rem; /* Add space below category headers */
+            padding-bottom: 0.5rem; /* Space under the text */
+            border-bottom: 1px solid #4b5563; /* Gray border */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 min-h-screen p-4 md:p-8">
+
+    <div class="container mx-auto max-w-5xl">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">convertr.tools</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">Fast and simple online conversion tools.</p>
+            <div class="relative max-w-xl mx-auto">
+                <input
+                    type="text"
+                    id="search-input"
+                    placeholder="Search converters... (e.g., JSON, inch to mm, title case)"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 shadow-sm"
+                >
+                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                </svg>
+
+            </div>
+        </header>
+
+        <main id="converter-grid">
+
+            <section class="converter-category mb-8" data-category="Web Dev">
+                <h2 class="category-header text-xl font-semibold text-gray-700 dark:text-gray-300">Web Dev</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="html markdown converter web development markup">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">HTML to Markdown</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert HTML code to Markdown.</p>
+                    </a>
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="markdown html converter web development markup">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">Markdown to HTML</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert Markdown to HTML code.</p>
+                    </a>
+                    </div>
+            </section>
+
+            <section class="converter-category mb-8" data-category="Data Formats">
+                 <h2 class="category-header text-xl font-semibold text-gray-700 dark:text-gray-300">Data Formats</h2>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="json formatter beautifier validator data javascript object notation">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">JSON Formatter</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Format and validate JSON data.</p>
+                    </a>
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="xml formatter beautifier validator data extensible markup language">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">XML Formatter</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Format and validate XML data.</p>
+                    </a>
+                    </div>
+            </section>
+
+            <section class="converter-category mb-8" data-category="Units">
+                 <h2 class="category-header text-xl font-semibold text-gray-700 dark:text-gray-300">Unit Converters</h2>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="inch inches mm cm m millimeter centimeter meter metric length distance conversion imperial">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">Inch to mm/cm/m</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert inches to metric lengths.</p>
+                    </a>
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="mm cm m km millimeter centimeter meter kilometer inch feet foot yard mile imperial length distance conversion metric">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">Metric to Imperial</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert mm/cm/m/km to inches/feet/yards/miles.</p>
+                    </a>
+                     <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="nautical mile miles km kilometer meter m distance length conversion sea maritime">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">Nautical Miles Converter</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert between nautical miles and other units.</p>
+                    </a>
+                    </div>
+            </section>
+
+             <section class="converter-category mb-8" data-category="Text">
+                 <h2 class="category-header text-xl font-semibold text-gray-700 dark:text-gray-300">Text Formatting</h2>
+                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <a href="#" class="converter-card block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg" data-keywords="text case converter uppercase lowercase title sentence capitalize formatting string manipulation">
+                        <h3 class="font-semibold text-indigo-600 dark:text-indigo-400">Case Converter</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Convert text to Title Case, Sentence case, etc.</p>
+                    </a>
+                    </div>
+            </section>
+
+            <div id="no-results" class="text-center text-gray-500 dark:text-gray-400 py-10 hidden">
+                <p class="text-lg">No matching converters found.</p>
+            </div>
+
+        </main>
+
+        <footer class="text-center mt-12 pt-6 border-t border-gray-300 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400">&copy; <span id="current-year"></span> convertr.tools - All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- Simple Search Filter ---
+        const searchInput = document.getElementById('search-input');
+        const converterCards = document.querySelectorAll('.converter-card');
+        const converterCategories = document.querySelectorAll('.converter-category');
+        const noResultsMessage = document.getElementById('no-results');
+
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            converterCategories.forEach(category => {
+                let categoryVisible = false;
+                const cardsInCategory = category.querySelectorAll('.converter-card');
+
+                cardsInCategory.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    const keywords = card.dataset.keywords ? card.dataset.keywords.toLowerCase() : ''; // Check if keywords exist
+
+                    // Check if search term matches title, description, or keywords
+                    if (title.includes(searchTerm) || description.includes(searchTerm) || keywords.includes(searchTerm)) {
+                        card.style.display = 'block'; // Show card
+                        card.classList.remove('hidden-smooth');
+                        categoryVisible = true; // Mark category as having visible cards
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none'; // Hide card
+                        card.classList.add('hidden-smooth');
+                    }
+                });
+
+                // Show or hide the category header based on visible cards within it
+                if (categoryVisible) {
+                    category.style.display = 'block';
+                    category.classList.remove('hidden-smooth');
+
+                } else {
+                     category.style.display = 'none';
+                     category.classList.add('hidden-smooth');
+                }
+            });
+
+            // Show/hide the "No results" message
+            if (visibleCount === 0 && searchTerm !== '') {
+                noResultsMessage.style.display = 'block';
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.style.display = 'none';
+                 noResultsMessage.classList.add('hidden');
+            }
+        });
+
+        // --- Set Current Year in Footer ---
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // --- Optional: Dark Mode Toggle (Example) ---
+        // You could add a button to toggle dark mode if desired
+        // const toggleDarkMode = () => {
+        //    document.documentElement.classList.toggle('dark');
+        //    // Optionally save preference in localStorage
+        // };
+        // Example: document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
+
+    </script>
+
+</body>
+</html>
+  
