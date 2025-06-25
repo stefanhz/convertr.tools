@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>convertr.tools - Online Converters and Formatters</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A192F; /* Dark background for track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E3A5F; /* Button-like color for thumb */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2D5A8D; /* Brighter on hover */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tool-button-active {
+            border-color: #F97316 !important; /* orange-500 */
+            border-width: 2px !important;
+            box-shadow: 0 0 15px #F97316;
+        }
+        .tool-button:hover:not(.tool-button-active) {
+             background-color: #2D5A8D !important; /* Brighter blue for hover */
+             box-shadow: 0 0 15px #60A5FA; /* Glow shadow */
+        }
+        .tool-icon-button {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .tool-icon-button.enabled {
+            opacity: 1;
+            cursor: pointer;
+        }
+        .tool-icon-button.enabled:hover {
+            color: #60A5FA; /* sky-400 */
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px; 
+            font-family: 'Inter', sans-serif; /* Ensure consistent font in textareas */
+        }
+        /* Specifically for Markdown and HTML output textareas for consistency */
+        #html-output, #markdown-output {
+            font-family: 'Inter', sans-serif;
+        }
+        /* For execCommand fallback, we might need to temporarily show the textarea */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        /* Back to top button */
+        #back-to-top-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none; /* Initially hidden */
+            z-index: 100;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#0A192F] text-slate-200">
+
+    <div class="container mx-auto max-w-6xl p-4 md:p-8 min-h-screen flex flex-col">
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">convertr.tools</h1> 
+            <p class="text-slate-400 mt-2 text-sm md:text-base">Fast and simple online conversion tools.</p>
+        </header>
+
+        <div id="search-bar-container" class="mb-8 md:mb-12 px-2 md:px-0"> 
+            <div class="relative">
+                <input type="search" id="search-bar" placeholder="Search converters... (e.g., JSON, inch to mm, title case)" 
+                       class="w-full p-3 md:p-4 rounded-lg bg-[#1E3A5F] border border-[#60A5FA] placeholder-slate-400 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 md:pr-4 text-slate-400">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow"> 
+            <main id="tool-selection-container" class="space-y-8">
+                </main>
+        </div>
+        
+        <section id="tool-display-wrapper" class="mt-8 md:mt-12" style="display: none;">
+            <div id="tool-display-area" class="p-4 md:p-6 bg-[#112240] rounded-lg shadow-xl min-h-[300px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="active-tool-title" class="text-xl md:text-2xl font-semibold text-slate-100"></h2>
+                    <div id="tool-actions" class="flex items-center space-x-2 md:space-x-3">
+                        </div>
+                </div>
+                <div id="tool-specific-ui" class="space-y-4">
+                    </div>
+            </div>
+        </section>
+
+        <footer class="text-center py-6 text-slate-500 text-sm border-t border-slate-700 mt-4"> 
+            <div class="mb-3 flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-4">
+                <span class="text-xs">Provided by <a href="https://2morrow.ai" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyan-400 transition-colors">2morrow.ai</a></span>
+                <span class="hidden md:inline text-slate-600">|</span>
+                <a href="https://forms.gle/f1rRReAPRgKm7ig36" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors">Feedback / Contact</a>
+                <span class="hidden md:inline text-slate-600">|</span>
+                <a href="https://buy.stripe.com/28o4ha8RPeSZ544dR1" target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-400 hover:text-amber-400 transition-colors">Buy Me a Coffee <i class="fas fa-coffee text-xs"></i></a>
+            </div>
+            <p>&copy; <span id="current-year"></span> convertr.tools - All rights reserved.</p>
+            <p class="mt-1 text-xs text-slate-600">v1.0</p> </footer>
+    </div>
+
+    <button id="back-to-top-button" title="Back to Top"
+            class="bg-[#1E3A5F] hover:bg-[#2D5A8D] text-slate-300 hover:text-cyan-300 p-3 rounded-full shadow-lg transition-all duration-300">
+        <i class="fas fa-arrow-up fa-lg"></i>
+    </button>
+
+
+    <script>
+        // Initialize Turndown service
+        const turndownService = typeof TurndownService !== 'undefined' ? new TurndownService() : null;
+        // Initialize Showdown converter.
+        const showdownConverter = typeof showdown !== 'undefined' ? new showdown.Converter({
+            noHeaderId: false,
+            simplifiedAutoLink: true, 
+            literalMidWordUnderscores: true, 
+            strikethrough: true, 
+            tables: true, 
+            tasklists: true, 
+            ghCompatibleHeaderId: true,
+            ghMentions: false 
+        }) : null;
+
+        // Helper function to format numbers with commas
+        function formatNumberWithCommas(number) {
+            if (number === null || number === undefined) return "";
+            let numStr = String(number);
+            if (isNaN(parseFloat(numStr))) return ""; 
+
+            let parts = numStr.split(".");
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join(".");
+        }
+
+
+        // Tool Definitions (Copied from previous version, assuming no changes needed here for this request)
+        const tools = [
+            // --- WEB DEV ---
+            {
+                id: 'html-to-markdown',
+                category: 'Web Dev',
+                name: 'HTML to Markdown',
+                description: 'Convert HTML code to Markdown.',
+                keywords: ['html', 'markdown', 'web dev', 'converter'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="html-input" class="block text-sm font-medium text-slate-300 mb-1">HTML Input</label>
+                                <textarea id="html-input" class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400 h-64 resize-none" placeholder="Paste HTML here..."></textarea>
+                            </div>
+                            <div>
+                                <label for="markdown-output" class="block text-sm font-medium text-slate-300 mb-1">Markdown Output</label>
+                                <textarea id="markdown-output" readonly class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 h-64 resize-none" placeholder="Markdown output..."></textarea>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'markdown-output-content'; 
+                    hiddenOutput.classList.add('visually-hidden'); 
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('markdown-output-content', 'markdown_output.md');
+                    
+                    const htmlInput = document.getElementById('html-input');
+                    const markdownOutput = document.getElementById('markdown-output');
+
+                    htmlInput.addEventListener('input', () => {
+                        if (turndownService) {
+                            try {
+                                const markdown = turndownService.turndown(htmlInput.value);
+                                markdownOutput.value = markdown;
+                                document.getElementById('markdown-output-content').value = markdown;
+                                updateActionButtonsState('markdown-output-content');
+                            } catch (e) {
+                                markdownOutput.value = "Error converting HTML.";
+                                document.getElementById('markdown-output-content').value = "";
+                                updateActionButtonsState('markdown-output-content');
+                            }
+                        } else {
+                            markdownOutput.value = "Turndown library not loaded.";
+                        }
+                    });
+                    updateActionButtonsState('markdown-output-content');
+                }
+            },
+            {
+                id: 'markdown-to-html',
+                category: 'Web Dev',
+                name: 'Markdown to HTML',
+                description: 'Convert Markdown to HTML code.',
+                keywords: ['markdown', 'html', 'web dev', 'converter'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="markdown-input" class="block text-sm font-medium text-slate-300 mb-1">Markdown Input</label>
+                                <textarea id="markdown-input" class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400 h-64 resize-none" placeholder="Paste Markdown here..."></textarea>
+                            </div>
+                            <div>
+                                <label for="html-output" class="block text-sm font-medium text-slate-300 mb-1">HTML Output</label>
+                                <textarea id="html-output" readonly class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 h-64 resize-none" placeholder="HTML output..."></textarea>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'html-output-content'; 
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('html-output-content', 'html_output.html');
+                    
+                    const markdownInput = document.getElementById('markdown-input');
+                    const htmlOutput = document.getElementById('html-output');
+
+                    markdownInput.addEventListener('input', () => {
+                        if (showdownConverter) {
+                            try {
+                                const html = showdownConverter.makeHtml(markdownInput.value);
+                                htmlOutput.value = html;
+                                document.getElementById('html-output-content').value = html;
+                                updateActionButtonsState('html-output-content');
+                            } catch (e) {
+                                htmlOutput.value = "Error converting Markdown.";
+                                document.getElementById('html-output-content').value = "";
+                                updateActionButtonsState('html-output-content');
+                            }
+                        } else {
+                            htmlOutput.value = "Showdown library not loaded.";
+                        }
+                    });
+                    updateActionButtonsState('html-output-content');
+                }
+            },
+            // --- DATA FORMATS ---
+            {
+                id: 'json-formatter',
+                category: 'Data Formats',
+                name: 'JSON Formatter',
+                description: 'Format and validate JSON data.',
+                keywords: ['json', 'formatter', 'data', 'validate', 'prettify'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div>
+                            <label for="json-input" class="block text-sm font-medium text-slate-300 mb-1">JSON Input/Output</label>
+                            <textarea id="json-input" class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400 h-80 resize-none" placeholder="Paste your JSON here..."></textarea>
+                            <button id="format-json-button" class="mt-3 px-4 py-2 bg-[#1E3A5F] border border-[#60A5FA] text-slate-100 rounded-md hover:bg-[#2D5A8D] transition-colors">Format JSON</button>
+                            <p id="json-message" class="text-sm mt-2"></p>
+                        </div>
+                    `;
+                    const hiddenOutputTextarea = document.createElement('textarea');
+                    hiddenOutputTextarea.id = 'json-output-content'; 
+                    hiddenOutputTextarea.classList.add('visually-hidden'); 
+                    container.appendChild(hiddenOutputTextarea);
+
+                    actionsContainer.innerHTML = createActionButtonsHTML('json-output-content', 'formatted.json');
+
+                    const jsonInput = document.getElementById('json-input');
+                    const formatButton = document.getElementById('format-json-button');
+                    const jsonMessage = document.getElementById('json-message');
+                    
+                    formatButton.addEventListener('click', () => {
+                        try {
+                            const jsonObj = JSON.parse(jsonInput.value);
+                            const formattedJson = JSON.stringify(jsonObj, null, 4);
+                            jsonInput.value = formattedJson;
+                            document.getElementById('json-output-content').value = formattedJson; 
+                            jsonMessage.textContent = 'JSON formatted successfully!';
+                            jsonMessage.className = 'text-sm mt-2 text-green-400';
+                        } catch (e) {
+                            document.getElementById('json-output-content').value = ''; 
+                            jsonMessage.textContent = 'Invalid JSON: ' + e.message;
+                            jsonMessage.className = 'text-sm mt-2 text-red-400';
+                        }
+                        updateActionButtonsState('json-output-content');
+                    });
+
+                    jsonInput.addEventListener('input', () => {
+                        jsonMessage.textContent = '';
+                        updateActionButtonsState('json-output-content'); 
+                    });
+                    updateActionButtonsState('json-output-content'); 
+                }
+            },
+            {
+                id: 'xml-formatter',
+                category: 'Data Formats',
+                name: 'XML Formatter',
+                description: 'Format and validate XML data.',
+                keywords: ['xml', 'formatter', 'data', 'validate', 'prettify'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div>
+                            <label for="xml-input" class="block text-sm font-medium text-slate-300 mb-1">XML Input/Output</label>
+                            <textarea id="xml-input" class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400 h-80 resize-none" placeholder="Paste your XML here..."></textarea>
+                            <button id="format-xml-button" class="mt-3 px-4 py-2 bg-[#1E3A5F] border border-[#60A5FA] text-slate-100 rounded-md hover:bg-[#2D5A8D] transition-colors">Format XML</button>
+                            <p id="xml-message" class="text-sm mt-2"></p>
+                        </div>
+                    `;
+                    const hiddenOutputTextarea = document.createElement('textarea'); 
+                    hiddenOutputTextarea.id = 'xml-output-content';
+                    hiddenOutputTextarea.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutputTextarea);
+                    actionsContainer.innerHTML = createActionButtonsHTML('xml-output-content', 'formatted.xml');
+
+                    const xmlInput = document.getElementById('xml-input');
+                    const formatButton = document.getElementById('format-xml-button');
+                    const xmlMessage = document.getElementById('xml-message');
+
+                    function prettyPrintXML(xmlString) {
+                        try {
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+                            const parserError = xmlDoc.getElementsByTagName("parsererror");
+                            if (parserError.length > 0) {
+                                let errorMsg = "Invalid XML structure.";
+                                if (parserError[0] && parserError[0].textContent) {
+                                   const divError = parserError[0].querySelector('div');
+                                   if (divError) errorMsg = divError.textContent.split('\n')[0];
+                                }
+                                throw new Error(errorMsg);
+                            }
+                            const serializer = new XMLSerializer();
+                            let formattedXml = serializer.serializeToString(xmlDoc);
+                            let indent = 0;
+                            const PADDING = '  '; 
+                            formattedXml = formattedXml.replace(/>\s*</g, '>\n<'); 
+                            formattedXml = formattedXml.split('\n').map(line => {
+                                let L = line.trim();
+                                if (L.match(/^<\/\w/)) { 
+                                    indent--;
+                                    if (indent < 0) indent = 0; 
+                                }
+                                let S = PADDING.repeat(indent) + L;
+                                if (L.match(/^<\w[^>]*[^\/]>$/)) { 
+                                    indent++;
+                                }
+                                return S;
+                            }).join('\n');
+                            return formattedXml;
+                        } catch (e) {
+                            throw e; 
+                        }
+                    }
+
+                    formatButton.addEventListener('click', () => {
+                        try {
+                            const formattedXml = prettyPrintXML(xmlInput.value);
+                            xmlInput.value = formattedXml;
+                            document.getElementById('xml-output-content').value = formattedXml; 
+                            xmlMessage.textContent = 'XML formatted successfully!';
+                            xmlMessage.className = 'text-sm mt-2 text-green-400';
+                        } catch (e) {
+                            document.getElementById('xml-output-content').value = ''; 
+                            xmlMessage.textContent = 'Error formatting XML: ' + e.message;
+                            xmlMessage.className = 'text-sm mt-2 text-red-400';
+                        }
+                        updateActionButtonsState('xml-output-content');
+                    });
+                     xmlInput.addEventListener('input', () => {
+                        xmlMessage.textContent = '';
+                        updateActionButtonsState('xml-output-content');
+                    });
+                    updateActionButtonsState('xml-output-content');
+                }
+            },
+            // --- UNITS --- 
+            // (Assuming the full list of unit converters from v0.5 is here, including the Power Converter)
+            // For brevity, I'll only show the Power Converter and assume others are present.
+            {
+                id: 'length-converter',
+                category: 'Units',
+                name: 'Length Converter',
+                description: 'inch/ft/yd/mi to mm/cm/m/km & vice-versa.',
+                keywords: ['length', 'distance', 'units', 'imperial', 'metric', 'inch', 'feet', 'mm', 'cm', 'meter', 'kilometer', 'yard', 'mile'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="length-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="length-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400" placeholder="Enter value">
+                                <select id="length-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400">
+                                    <optgroup label="Imperial">
+                                        <option value="in">Inches (in)</option>
+                                        <option value="ft">Feet (ft)</option>
+                                        <option value="yd">Yards (yd)</option>
+                                        <option value="mi">Miles (mi)</option>
+                                    </optgroup>
+                                    <optgroup label="Metric">
+                                        <option value="mm">Millimeters (mm)</option>
+                                        <option value="cm">Centimeters (cm)</option>
+                                        <option value="m">Meters (m)</option>
+                                        <option value="km">Kilometers (km)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="length-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="length-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300 cursor-not-allowed" placeholder="Result">
+                                <select id="length-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400">
+                                     <optgroup label="Metric">
+                                        <option value="mm">Millimeters (mm)</option>
+                                        <option value="cm">Centimeters (cm)</option>
+                                        <option value="m">Meters (m)</option>
+                                        <option value="km">Kilometers (km)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial">
+                                        <option value="in">Inches (in)</option>
+                                        <option value="ft">Feet (ft)</option>
+                                        <option value="yd">Yards (yd)</option>
+                                        <option value="mi">Miles (mi)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>`;
+                    const hiddenOutput = document.createElement('textarea'); 
+                    hiddenOutput.id = 'length-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('length-converter-output-content', 'conversion_result.txt');
+                    
+                    const inputValue = document.getElementById('length-input-value');
+                    const inputUnit = document.getElementById('length-input-unit');
+                    const outputValue = document.getElementById('length-output-value');
+                    const outputUnit = document.getElementById('length-output-unit');
+
+                    const conversionFactorsToMeter = {
+                        'in': 0.0254, 'ft': 0.3048, 'yd': 0.9144, 'mi': 1609.34,
+                        'mm': 0.001, 'cm': 0.01, 'm': 1, 'km': 1000
+                    };
+
+                    function convertLength() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('length-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if(hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('length-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+
+                        const valueInMeters = val * conversionFactorsToMeter[fromUnit];
+                        const result = valueInMeters / conversionFactorsToMeter[toUnit];
+                        
+                        const resultString = result.toFixed(5); 
+                        outputValue.value = formatNumberWithCommas(resultString); 
+                        if(hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('length-converter-output-content');
+                    }
+
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertLength));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertLength)); 
+                    updateActionButtonsState('length-converter-output-content');
+                }
+            },
+            { 
+                id: 'area-converter',
+                category: 'Units',
+                name: 'Area Converter',
+                description: 'Convert between various area units.',
+                keywords: ['area', 'square meter', 'square foot', 'hectare', 'acre', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="area-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="area-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="area-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="sqmm">Square Millimeters (mm²)</option>
+                                        <option value="sqcm">Square Centimeters (cm²)</option>
+                                        <option value="sqm">Square Meters (m²)</option>
+                                        <option value="ha">Hectares (ha)</option>
+                                        <option value="sqkm">Square Kilometers (km²)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial">
+                                        <option value="sqin">Square Inches (in²)</option>
+                                        <option value="sqft">Square Feet (ft²)</option>
+                                        <option value="sqyd">Square Yards (yd²)</option>
+                                        <option value="ac">Acres (ac)</option>
+                                        <option value="sqmi">Square Miles (mi²)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="area-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="area-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="area-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="sqmm">Square Millimeters (mm²)</option>
+                                        <option value="sqcm">Square Centimeters (cm²)</option>
+                                        <option value="sqm" selected>Square Meters (m²)</option>
+                                        <option value="ha">Hectares (ha)</option>
+                                        <option value="sqkm">Square Kilometers (km²)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial">
+                                        <option value="sqin">Square Inches (in²)</option>
+                                        <option value="sqft">Square Feet (ft²)</option>
+                                        <option value="sqyd">Square Yards (yd²)</option>
+                                        <option value="ac">Acres (ac)</option>
+                                        <option value="sqmi">Square Miles (mi²)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'area-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('area-converter-output-content', 'area_conversion.txt');
+
+                    const inputValue = document.getElementById('area-input-value');
+                    const inputUnit = document.getElementById('area-input-unit');
+                    const outputValue = document.getElementById('area-output-value');
+                    const outputUnit = document.getElementById('area-output-unit');
+
+                    const factorsToSqm = {
+                        'sqmm': 0.000001, 'sqcm': 0.0001, 'sqm': 1, 'ha': 10000, 'sqkm': 1000000,
+                        'sqin': 0.00064516, 'sqft': 0.092903, 'sqyd': 0.836127, 'ac': 4046.86, 'sqmi': 2589990
+                    };
+
+                    function convertArea() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('area-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('area-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        const valueInSqm = val * factorsToSqm[fromUnit];
+                        const result = valueInSqm / factorsToSqm[toUnit];
+                        const resultString = result.toPrecision(7); 
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('area-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertArea));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertArea));
+                    updateActionButtonsState('area-converter-output-content');
+                }
+            },
+            { 
+                id: 'volume-converter',
+                category: 'Units',
+                name: 'Volume Converter',
+                description: 'Convert between various volume units.',
+                keywords: ['volume', 'liter', 'gallon', 'cubic meter', 'cubic foot', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="volume-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="volume-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="volume-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="ml">Milliliters (mL)</option>
+                                        <option value="l">Liters (L)</option>
+                                        <option value="m3">Cubic Meters (m³)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial (US)">
+                                        <option value="floz_us">Fluid Ounces (fl oz)</option>
+                                        <option value="pt_us">Pints (pt)</option>
+                                        <option value="qt_us">Quarts (qt)</option>
+                                        <option value="gal_us">Gallons (gal)</option>
+                                        <option value="in3">Cubic Inches (in³)</option>
+                                        <option value="ft3">Cubic Feet (ft³)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="volume-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="volume-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="volume-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="ml">Milliliters (mL)</option>
+                                        <option value="l" selected>Liters (L)</option>
+                                        <option value="m3">Cubic Meters (m³)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial (US)">
+                                        <option value="floz_us">Fluid Ounces (fl oz)</option>
+                                        <option value="pt_us">Pints (pt)</option>
+                                        <option value="qt_us">Quarts (qt)</option>
+                                        <option value="gal_us">Gallons (gal)</option>
+                                        <option value="in3">Cubic Inches (in³)</option>
+                                        <option value="ft3">Cubic Feet (ft³)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'volume-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('volume-converter-output-content', 'volume_conversion.txt');
+
+                    const inputValue = document.getElementById('volume-input-value');
+                    const inputUnit = document.getElementById('volume-input-unit');
+                    const outputValue = document.getElementById('volume-output-value');
+                    const outputUnit = document.getElementById('volume-output-unit');
+
+                    const factorsToLiters = {
+                        'ml': 0.001, 'l': 1, 'm3': 1000,
+                        'floz_us': 0.0295735, 'pt_us': 0.473176, 'qt_us': 0.946353, 'gal_us': 3.78541,
+                        'in3': 0.0163871, 'ft3': 28.3168
+                    };
+
+                    function convertVolume() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('volume-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('volume-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        const valueInLiters = val * factorsToLiters[fromUnit];
+                        const result = valueInLiters / factorsToLiters[toUnit];
+                        const resultString = result.toFixed(5);
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('volume-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertVolume));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertVolume));
+                    updateActionButtonsState('volume-converter-output-content');
+                }
+            },
+            { 
+                id: 'weight-converter',
+                category: 'Units',
+                name: 'Weight Converter',
+                description: 'Convert between various weight units.',
+                keywords: ['weight', 'mass', 'kilogram', 'pound', 'gram', 'ounce', 'stone', 'ton', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="weight-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="weight-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="weight-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="mg">Milligrams (mg)</option>
+                                        <option value="g">Grams (g)</option>
+                                        <option value="kg">Kilograms (kg)</option>
+                                        <option value="tonne">Metric Tonnes (t)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial">
+                                        <option value="oz">Ounces (oz)</option>
+                                        <option value="lb">Pounds (lb)</option>
+                                        <option value="st">Stone (st)</option>
+                                        <option value="short_ton_us">Short Ton (US)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="weight-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="weight-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="weight-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <optgroup label="Metric">
+                                        <option value="mg">Milligrams (mg)</option>
+                                        <option value="g">Grams (g)</option>
+                                        <option value="kg" selected>Kilograms (kg)</option>
+                                        <option value="tonne">Metric Tonnes (t)</option>
+                                    </optgroup>
+                                    <optgroup label="Imperial">
+                                        <option value="oz">Ounces (oz)</option>
+                                        <option value="lb">Pounds (lb)</option>
+                                        <option value="st">Stone (st)</option>
+                                        <option value="short_ton_us">Short Ton (US)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'weight-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('weight-converter-output-content', 'weight_conversion.txt');
+
+                    const inputValue = document.getElementById('weight-input-value');
+                    const inputUnit = document.getElementById('weight-input-unit');
+                    const outputValue = document.getElementById('weight-output-value');
+                    const outputUnit = document.getElementById('weight-output-unit');
+
+                    const factorsToKg = {
+                        'mg': 0.000001, 'g': 0.001, 'kg': 1, 'tonne': 1000,
+                        'oz': 0.0283495, 'lb': 0.453592, 'st': 6.35029, 'short_ton_us': 907.185
+                    };
+
+                    function convertWeight() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('weight-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('weight-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        const valueInKg = val * factorsToKg[fromUnit];
+                        const result = valueInKg / factorsToKg[toUnit];
+                        const resultString = result.toFixed(5);
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('weight-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertWeight));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertWeight));
+                    updateActionButtonsState('weight-converter-output-content');
+                }
+            },
+            { 
+                id: 'speed-converter',
+                category: 'Units',
+                name: 'Speed Converter',
+                description: 'Convert between various speed units.',
+                keywords: ['speed', 'velocity', 'kph', 'mph', 'm/s', 'knots', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="speed-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="speed-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="speed-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="mps">Meters per second (m/s)</option>
+                                    <option value="kph">Kilometers per hour (km/h)</option>
+                                    <option value="mph">Miles per hour (mph)</option>
+                                    <option value="fps">Feet per second (ft/s)</option>
+                                    <option value="kn">Knots (kn)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="speed-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="speed-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="speed-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="mps" selected>Meters per second (m/s)</option>
+                                    <option value="kph">Kilometers per hour (km/h)</option>
+                                    <option value="mph">Miles per hour (mph)</option>
+                                    <option value="fps">Feet per second (ft/s)</option>
+                                    <option value="kn">Knots (kn)</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'speed-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('speed-converter-output-content', 'speed_conversion.txt');
+
+                    const inputValue = document.getElementById('speed-input-value');
+                    const inputUnit = document.getElementById('speed-input-unit');
+                    const outputValue = document.getElementById('speed-output-value');
+                    const outputUnit = document.getElementById('speed-output-unit');
+
+                    const factorsToMps = {
+                        'mps': 1, 'kph': 0.277778, 'mph': 0.44704, 'fps': 0.3048, 'kn': 0.514444
+                    };
+
+                    function convertSpeed() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('speed-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('speed-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        const valueInMps = val * factorsToMps[fromUnit];
+                        const result = valueInMps / factorsToMps[toUnit];
+                        const resultString = result.toFixed(5);
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('speed-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertSpeed));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertSpeed));
+                    updateActionButtonsState('speed-converter-output-content');
+                }
+            },
+            { 
+                id: 'power-converter',
+                category: 'Units',
+                name: 'Power Converter',
+                description: 'Convert Horsepower (hp) to Kilowatts (kW).',
+                keywords: ['power', 'horsepower', 'hp', 'kilowatts', 'kw', 'engine', 'car', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="power-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="power-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="power-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="hp">Horsepower (hp)</option>
+                                    <option value="kw">Kilowatts (kW)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="power-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="power-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="power-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="hp">Horsepower (hp)</option>
+                                    <option value="kw" selected>Kilowatts (kW)</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'power-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('power-converter-output-content', 'power_conversion.txt');
+
+                    const inputValue = document.getElementById('power-input-value');
+                    const inputUnit = document.getElementById('power-input-unit');
+                    const outputValue = document.getElementById('power-output-value');
+                    const outputUnit = document.getElementById('power-output-unit');
+
+                    const hpToKwFactor = 0.745699872;
+
+                    function convertPower() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('power-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('power-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        let result;
+
+                        if (fromUnit === toUnit) {
+                            result = val;
+                        } else if (fromUnit === 'hp' && toUnit === 'kw') {
+                            result = val * hpToKwFactor;
+                        } else if (fromUnit === 'kw' && toUnit === 'hp') {
+                            result = val / hpToKwFactor;
+                        }
+                        
+                        const resultString = result.toFixed(3); 
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('power-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertPower));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertPower));
+                    updateActionButtonsState('power-converter-output-content');
+                }
+            },
+            {
+                id: 'nautical-miles-converter', 
+                category: 'Units',
+                name: 'Nautical Miles Converter',
+                description: 'Convert nautical miles to/from km, miles.',
+                keywords: ['nautical miles', 'nm', 'km', 'miles', 'units', 'converter', 'marine', 'aviation', 'distance'],
+                 init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="nm-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="nm-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400" placeholder="Enter value">
+                                <select id="nm-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400">
+                                    <option value="NM">Nautical Miles (NM)</option>
+                                    <option value="km">Kilometers (km)</option>
+                                    <option value="mi">Statute Miles (mi)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="nm-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="nm-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300 cursor-not-allowed" placeholder="Result">
+                                <select id="nm-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400">
+                                    <option value="NM" selected>Nautical Miles (NM)</option>
+                                    <option value="km">Kilometers (km)</option>
+                                    <option value="mi">Statute Miles (mi)</option>
+                                </select>
+                            </div>
+                        </div>`;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'nm-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('nm-converter-output-content', 'nautical_conversion.txt');
+                    
+                    const inputValue = document.getElementById('nm-input-value');
+                    const inputUnit = document.getElementById('nm-input-unit');
+                    const outputValue = document.getElementById('nm-output-value');
+                    const outputUnit = document.getElementById('nm-output-unit');
+
+                    const factorsToKm = {
+                        'NM': 1.852,      
+                        'km': 1,          
+                        'mi': 1.60934    
+                    };
+
+                    function convertNautical() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('nm-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if(hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('nm-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+
+                        const valueInKm = val * factorsToKm[fromUnit];
+                        const result = valueInKm / factorsToKm[toUnit];
+                        
+                        const resultString = result.toFixed(5);
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if(hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('nm-converter-output-content');
+                    }
+
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertNautical));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertNautical)); 
+                    updateActionButtonsState('nm-converter-output-content');
+                }
+            },
+            { 
+                id: 'temperature-converter',
+                category: 'Units',
+                name: 'Temperature Converter',
+                description: 'Convert Celsius, Fahrenheit, and Kelvin.',
+                keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="temp-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="temp-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="temp-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="C">Celsius (°C)</option>
+                                    <option value="F">Fahrenheit (°F)</option>
+                                    <option value="K">Kelvin (K)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="temp-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="temp-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="temp-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="C">Celsius (°C)</option>
+                                    <option value="F" selected>Fahrenheit (°F)</option>
+                                    <option value="K">Kelvin (K)</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'temp-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('temp-converter-output-content', 'temperature_conversion.txt');
+
+                    const inputValue = document.getElementById('temp-input-value');
+                    const inputUnit = document.getElementById('temp-input-unit');
+                    const outputValue = document.getElementById('temp-output-value');
+                    const outputUnit = document.getElementById('temp-output-unit');
+
+                    function convertTemperature() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('temp-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('temp-converter-output-content');
+                            return;
+                        }
+                        const from = inputUnit.value;
+                        const to = outputUnit.value;
+                        let result;
+
+                        if (from === to) {
+                            result = val;
+                        } else if (from === 'C') {
+                            if (to === 'F') result = (val * 9/5) + 32;
+                            else if (to === 'K') result = val + 273.15;
+                        } else if (from === 'F') {
+                            if (to === 'C') result = (val - 32) * 5/9;
+                            else if (to === 'K') result = ((val - 32) * 5/9) + 273.15;
+                        } else if (from === 'K') {
+                            if (to === 'C') result = val - 273.15;
+                            else if (to === 'F') result = ((val - 273.15) * 9/5) + 32;
+                        }
+                        
+                        const resultString = result.toFixed(2); 
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} °${from} = ${formatNumberWithCommas(resultString)} °${to}`;
+                        updateActionButtonsState('temp-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertTemperature));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertTemperature));
+                    updateActionButtonsState('temp-converter-output-content');
+                }
+            },
+            { 
+                id: 'energy-converter',
+                category: 'Units',
+                name: 'Energy Converter',
+                description: 'Convert between various energy units.',
+                keywords: ['energy', 'joule', 'calorie', 'kwh', 'btu', 'units'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="energy-input-value" class="block text-sm font-medium text-slate-300 mb-1">Input Value</label>
+                                <input type="number" id="energy-input-value" class="w-full p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200" placeholder="Enter value">
+                                <select id="energy-input-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="j">Joules (J)</option>
+                                    <option value="kj">Kilojoules (kJ)</option>
+                                    <option value="cal">Calories (cal)</option>
+                                    <option value="kcal">Kilocalories (kcal)</option>
+                                    <option value="wh">Watt-hours (Wh)</option>
+                                    <option value="kwh">Kilowatt-hours (kWh)</option>
+                                    <option value="btu">British Thermal Units (BTU)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="energy-output-value" class="block text-sm font-medium text-slate-300 mb-1">Output Value</label>
+                                <input type="text" id="energy-output-value" readonly class="w-full p-2 rounded bg-[#1E3A5F] border border-slate-700 text-slate-300" placeholder="Result">
+                                <select id="energy-output-unit" class="w-full mt-2 p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200">
+                                    <option value="j" selected>Joules (J)</option>
+                                    <option value="kj">Kilojoules (kJ)</option>
+                                    <option value="cal">Calories (cal)</option>
+                                    <option value="kcal">Kilocalories (kcal)</option>
+                                    <option value="wh">Watt-hours (Wh)</option>
+                                    <option value="kwh">Kilowatt-hours (kWh)</option>
+                                    <option value="btu">British Thermal Units (BTU)</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    const hiddenOutput = document.createElement('textarea');
+                    hiddenOutput.id = 'energy-converter-output-content';
+                    hiddenOutput.classList.add('visually-hidden');
+                    container.appendChild(hiddenOutput);
+                    actionsContainer.innerHTML = createActionButtonsHTML('energy-converter-output-content', 'energy_conversion.txt');
+
+                    const inputValue = document.getElementById('energy-input-value');
+                    const inputUnit = document.getElementById('energy-input-unit');
+                    const outputValue = document.getElementById('energy-output-value');
+                    const outputUnit = document.getElementById('energy-output-unit');
+
+                    const factorsToJoules = {
+                        'j': 1, 'kj': 1000, 'cal': 4.184, 'kcal': 4184,
+                        'wh': 3600, 'kwh': 3600000, 'btu': 1055.06
+                    };
+
+                    function convertEnergy() {
+                        const val = parseFloat(inputValue.value);
+                        const hiddenOutputEl = document.getElementById('energy-converter-output-content');
+                        if (isNaN(val)) {
+                            outputValue.value = '';
+                            if (hiddenOutputEl) hiddenOutputEl.value = '';
+                            updateActionButtonsState('energy-converter-output-content');
+                            return;
+                        }
+                        const fromUnit = inputUnit.value;
+                        const toUnit = outputUnit.value;
+                        const valueInJoules = val * factorsToJoules[fromUnit];
+                        const result = valueInJoules / factorsToJoules[toUnit];
+                        const resultString = result.toPrecision(7);
+                        outputValue.value = formatNumberWithCommas(resultString);
+                        if (hiddenOutputEl) hiddenOutputEl.value = `${formatNumberWithCommas(val.toString())} ${fromUnit} = ${formatNumberWithCommas(resultString)} ${toUnit}`;
+                        updateActionButtonsState('energy-converter-output-content');
+                    }
+                    [inputValue, inputUnit, outputUnit].forEach(el => el.addEventListener('input', convertEnergy));
+                    [inputUnit, outputUnit].forEach(el => el.addEventListener('change', convertEnergy));
+                    updateActionButtonsState('energy-converter-output-content');
+                }
+            },
+            // --- TEXT ---
+            {
+                id: 'text-case-converter',
+                category: 'Text',
+                name: 'Case Converter',
+                description: 'Convert text to Title Case, Sentence case, etc.',
+                keywords: ['text', 'case', 'converter', 'title case', 'sentence case', 'uppercase', 'lowercase'],
+                init: function(container, actionsContainer) {
+                    container.innerHTML = `
+                        <div>
+                            <label for="text-case-input" class="block text-sm font-medium text-slate-300 mb-1">Input Text</label>
+                            <textarea id="text-case-input" class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 focus:ring-cyan-400 focus:border-cyan-400 h-48 resize-none" placeholder="Enter text here..."></textarea>
+                            
+                            <div class="my-3 flex flex-wrap gap-2">
+                                <button data-case="sentence" class="case-button px-3 py-1.5 bg-[#1E3A5F] border border-[#60A5FA] text-xs rounded hover:bg-[#2D5A8D] transition-colors">Sentence case</button>
+                                <button data-case="lower" class="case-button px-3 py-1.5 bg-[#1E3A5F] border border-[#60A5FA] text-xs rounded hover:bg-[#2D5A8D] transition-colors">lower case</button>
+                                <button data-case="upper" class="case-button px-3 py-1.5 bg-[#1E3A5F] border border-[#60A5FA] text-xs rounded hover:bg-[#2D5A8D] transition-colors">UPPER CASE</button>
+                                <button data-case="title" class="case-button px-3 py-1.5 bg-[#1E3A5F] border border-[#60A5FA] text-xs rounded hover:bg-[#2D5A8D] transition-colors">Title Case</button>
+                                </div>
+
+                            <label for="text-case-output" class="block text-sm font-medium text-slate-300 mb-1">Output Text</label>
+                            <textarea id="text-case-output" readonly class="p-2 rounded bg-[#0A192F] border border-slate-600 text-slate-200 h-48 resize-none" placeholder="Converted text..."></textarea>
+                        </div>
+                    `;
+                    actionsContainer.innerHTML = createActionButtonsHTML('text-case-output', 'formatted_text.txt');
+
+                    const inputTextArea = document.getElementById('text-case-input');
+                    const outputTextArea = document.getElementById('text-case-output'); 
+                    const caseButtons = container.querySelectorAll('.case-button');
+
+                    function toSentenceCase(str) {
+                        if (!str) return '';
+                        return str.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, function(c){ return c.toUpperCase(); });
+                    }
+
+                    function toTitleCase(str) {
+                        if (!str) return '';
+                        return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    }
+
+                    caseButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            const caseType = button.dataset.case;
+                            let inputText = inputTextArea.value;
+                            let outputText = '';
+                            switch(caseType) {
+                                case 'sentence': outputText = toSentenceCase(inputText); break;
+                                case 'lower': outputText = inputText.toLowerCase(); break;
+                                case 'upper': outputText = inputText.toUpperCase(); break;
+                                case 'title': outputText = toTitleCase(inputText); break;
+                            }
+                            outputTextArea.value = outputText; 
+                            updateActionButtonsState('text-case-output'); 
+                        });
+                    });
+                    
+                    inputTextArea.addEventListener('input', () => {
+                        outputTextArea.value = ''; 
+                        updateActionButtonsState('text-case-output'); 
+                    });
+                    updateActionButtonsState('text-case-output');
+                }
+            }
+        ];
+
+        function createActionButtonsHTML(targetTextareaId, defaultFileName) {
+            return `
+                <button id="copy-button-${targetTextareaId}" class="tool-icon-button text-slate-400" title="Copy output">
+                    <i class="fas fa-copy fa-lg"></i>
+                </button>
+                <button id="download-button-${targetTextareaId}" class="tool-icon-button text-slate-400" title="Download output" data-filename="${defaultFileName}">
+                    <i class="fas fa-download fa-lg"></i>
+                </button>
+            `;
+        }
+        
+        function updateActionButtonsState(textareaId) {
+            const textarea = document.getElementById(textareaId); 
+            const content = textarea ? textarea.value : '';
+            const hasContent = content.trim().length > 0;
+
+            const copyButton = document.getElementById(`copy-button-${textareaId}`);
+            const downloadButton = document.getElementById(`download-button-${textareaId}`);
+
+            if (copyButton) {
+                copyButton.disabled = !hasContent;
+                copyButton.classList.toggle('enabled', hasContent);
+            }
+            if (downloadButton) {
+                downloadButton.disabled = !hasContent;
+                downloadButton.classList.toggle('enabled', hasContent);
+            }
+        }
+
+        const toolSelectionContainer = document.getElementById('tool-selection-container');
+        const toolDisplayWrapper = document.getElementById('tool-display-wrapper'); 
+        const activeToolTitle = document.getElementById('active-tool-title');
+        const toolSpecificUI = document.getElementById('tool-specific-ui');
+        const toolActionsContainer = document.getElementById('tool-actions');
+        const searchBarEl = document.getElementById('search-bar'); 
+        const searchBarContainer = document.getElementById('search-bar-container'); 
+        const backToTopButton = document.getElementById('back-to-top-button');
+        let currentSelectedToolButton = null;
+
+        const categories = {};
+        const categoryOrder = ['Web Dev', 'Data Formats', 'Units', 'Text'];
+        categoryOrder.forEach(catName => categories[catName] = []); 
+
+        tools.forEach(tool => {
+            if (!categories[tool.category]) { 
+                categories[tool.category] = [];
+            }
+            categories[tool.category].push(tool);
+        });
+        
+        categoryOrder.forEach(categoryName => {
+            if (categories[categoryName] && categories[categoryName].length > 0) {
+                const categorySection = document.createElement('section');
+                categorySection.dataset.categoryName = categoryName; 
+                categorySection.className = "mb-8"; 
+                categorySection.innerHTML = `<h2 class="text-2xl font-semibold text-slate-300 mb-4 ml-1">${categoryName}</h2>`;
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+                
+                categories[categoryName].forEach(tool => {
+                    const button = document.createElement('button');
+                    button.className = 'tool-button bg-[#1E3A5F] border border-[#60A5FA] rounded-lg p-4 md:p-6 text-left w-full transition-all duration-200 focus:outline-none';
+                    button.dataset.toolId = tool.id;
+                    button.innerHTML = `
+                        <h3 class="text-lg md:text-xl font-semibold text-slate-100">${tool.name}</h3>
+                        <p class="text-xs md:text-sm text-slate-400 mt-1">${tool.description}</p>
+                    `;
+                    button.addEventListener('click', () => displayTool(tool, button)); 
+                    grid.appendChild(button);
+                });
+                categorySection.appendChild(grid);
+                toolSelectionContainer.appendChild(categorySection);
+            }
+        });
+        
+
+        function displayTool(tool, clickedButtonElement) {
+            activeToolTitle.textContent = tool.name;
+            toolSpecificUI.innerHTML = ''; 
+            toolActionsContainer.innerHTML = ''; 
+
+            tool.init(toolSpecificUI, toolActionsContainer); 
+
+            const targetCategorySection = clickedButtonElement.closest('section[data-category-name]');
+            if (targetCategorySection) {
+                targetCategorySection.after(toolDisplayWrapper);
+            } else {
+                toolSelectionContainer.appendChild(toolDisplayWrapper); 
+            }
+            
+            toolDisplayWrapper.style.display = 'block';
+            const toolDisplayAreaElement = document.getElementById('tool-display-area');
+            if (toolDisplayAreaElement) {
+                 toolDisplayAreaElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            if (currentSelectedToolButton) {
+                currentSelectedToolButton.classList.remove('tool-button-active');
+                currentSelectedToolButton.style.backgroundColor = '#1E3A5F'; 
+                currentSelectedToolButton.style.boxShadow = 'none';
+            }
+            const newSelectedButton = clickedButtonElement; 
+            if (newSelectedButton) {
+                newSelectedButton.classList.add('tool-button-active');
+                newSelectedButton.style.backgroundColor = '#1E3A5F'; 
+                currentSelectedToolButton = newSelectedButton;
+            }
+            
+            const copyButton = toolActionsContainer.querySelector('[id^="copy-button-"]');
+            const downloadButton = toolActionsContainer.querySelector('[id^="download-button-"]');
+            const targetTextareaId = copyButton ? copyButton.id.replace('copy-button-', '') : (downloadButton ? downloadButton.id.replace('download-button-', '') : null);
+
+            if (copyButton && targetTextareaId) {
+                copyButton.addEventListener('click', () => {
+                    const textareaToCopy = document.getElementById(targetTextareaId); 
+                    const originalIconHTML = copyButton.innerHTML; 
+                    let successful = false; 
+
+                    if (textareaToCopy && textareaToCopy.value.trim() !== "") {
+                        navigator.clipboard.writeText(textareaToCopy.value)
+                            .then(() => {
+                                successful = true;
+                                copyButton.innerHTML = '<i class="fas fa-check fa-lg text-green-400"></i>';
+                                setTimeout(() => { copyButton.innerHTML = originalIconHTML; }, 1500);
+                            })
+                            .catch(err => {
+                                console.error('navigator.clipboard.writeText failed:', err);
+                                console.log('Attempting fallback to document.execCommand("copy")');
+                                
+                                const wasHidden = textareaToCopy.classList.contains('visually-hidden');
+                                if (wasHidden) {
+                                    textareaToCopy.classList.remove('visually-hidden');
+                                }
+                                
+                                textareaToCopy.focus(); 
+                                textareaToCopy.select(); 
+                                textareaToCopy.setSelectionRange(0, textareaToCopy.value.length); 
+
+                                try {
+                                    successful = document.execCommand('copy');
+                                    if (successful) {
+                                        copyButton.innerHTML = '<i class="fas fa-check fa-lg text-green-400"></i>'; 
+                                        console.log('Fallback copy successful using document.execCommand.');
+                                    } else {
+                                        copyButton.innerHTML = '<i class="fas fa-times fa-lg text-red-400"></i>'; 
+                                        console.error('Fallback copy using document.execCommand failed.');
+                                    }
+                                } catch (execErr) {
+                                    successful = false; 
+                                    copyButton.innerHTML = '<i class="fas fa-times fa-lg text-red-400"></i>'; 
+                                    console.error('Error during document.execCommand fallback:', execErr);
+                                } finally {
+                                    if (wasHidden) {
+                                        textareaToCopy.classList.add('visually-hidden');
+                                    }
+                                    if (document.activeElement === textareaToCopy) {
+                                        textareaToCopy.blur(); 
+                                    } else {
+                                         window.getSelection().removeAllRanges(); 
+                                    }
+                                   
+                                    setTimeout(() => { copyButton.innerHTML = originalIconHTML; }, successful ? 1500 : 2500);
+                                }
+                            });
+                    } else {
+                        console.warn('Copy button clicked, but target textarea is missing or its value is empty.');
+                        console.warn('Target Textarea ID:', targetTextareaId, 'Element:', textareaToCopy, 'Value:', textareaToCopy ? `"${textareaToCopy.value}"` : 'N/A');
+                        copyButton.innerHTML = '<i class="fas fa-exclamation-triangle fa-lg text-yellow-400"></i>'; 
+                        setTimeout(() => { copyButton.innerHTML = originalIconHTML; }, 2500);
+                    }
+                });
+            }
+
+            if (downloadButton && targetTextareaId) {
+                downloadButton.addEventListener('click', () => {
+                    const textareaToDownload = document.getElementById(targetTextareaId); 
+                    if (textareaToDownload && textareaToDownload.value) {
+                        const text = textareaToDownload.value;
+                        const filename = downloadButton.dataset.filename || 'download.txt';
+                        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                });
+            }
+            if (targetTextareaId) { 
+                updateActionButtonsState(targetTextareaId);
+            }
+        }
+
+        searchBarEl.addEventListener('input', (e) => { 
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            tools.forEach(tool => {
+                const button = document.querySelector(`.tool-button[data-tool-id="${tool.id}"]`);
+                if (!button) return;
+
+                const toolName = tool.name.toLowerCase();
+                const toolDesc = tool.description.toLowerCase();
+                const toolKeywords = tool.keywords.join(' ').toLowerCase();
+                
+                const isMatch = toolName.includes(searchTerm) || 
+                                toolDesc.includes(searchTerm) || 
+                                toolKeywords.includes(searchTerm);
+                
+                button.style.display = isMatch ? 'block' : 'none'; 
+            });
+
+            const categorySections = toolSelectionContainer.querySelectorAll('section[data-category-name]');
+            categorySections.forEach(section => {
+                const hasVisibleButtons = Array.from(section.querySelectorAll('.tool-button')).some(btn => btn.style.display !== 'none');
+                section.style.display = hasVisibleButtons ? 'block' : 'none'; 
+            });
+        });
+
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Back to Top Button Functionality
+        if (backToTopButton && searchBarContainer) { 
+            window.onscroll = function() {
+                const searchBarBottom = searchBarContainer.getBoundingClientRect().bottom;
+                
+                if (searchBarBottom < 0) { 
+                    backToTopButton.style.display = "block";
+                } else {
+                    backToTopButton.style.display = "none";
+                }
+            };
+
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        } else {
+            if (!backToTopButton) console.error("Back to top button not found.");
+            if (!searchBarContainer) console.error("Search bar container not found.");
+        }
+
+    </script>
+</body>
+</html>

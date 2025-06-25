@@ -79,6 +79,11 @@ export default function Home() {
     setSelectedConverter(null);
   };
 
+  React.useEffect(() => {
+    // Ensure page starts at top on load
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       {!selectedConverter && (
@@ -88,8 +93,9 @@ export default function Home() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search converters... (e.g., JSON, inch to mm, title case)"
-            className="w-full mb-6 rounded-md border border-gray-700 bg-gray-900 text-cyan-400 placeholder-cyan-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full mb-6 rounded-md border border-gray-700 bg-gray-800 text-cyan-400 placeholder-cyan-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             aria-label="Search converters"
+            autoFocus={false}
           />
           {categories.map((category) => {
             const convertersInCategory = filteredConverters.filter(

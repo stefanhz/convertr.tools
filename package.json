@@ -1,6 +1,6 @@
 {
   "name": "convertr.tools",
-  "version": "0.2.20",
+  "version": "1.2.30",
   "private": true,
   "scripts": {
     "dev": "next dev",
